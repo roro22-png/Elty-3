@@ -1,0 +1,76 @@
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { motion } from "framer-motion";
+import Image from "next/image";
+import Head from "next/head";
+
+export default function WaterReminderApp() {
+  const [timer, setTimer] = useState(30 * 60); // 30 minutes in seconds
+  const [achievements, setAchievements] = useState(0);
+  const [streak, setStreak] = useState(0);
+
+  useEffect(() => {
+    if (timer > 0) {
+      const interval = setInterval(() => {
+        setTimer((prevTimer) => prevTimer - 1);
+      }, 1000);
+
+      // Cleanup on unmount or when timer stops
+      return () => clearInterval(interval);
+    } else {
+      // Play reminder sound when the timer reaches zero
+      const audio = new Audio("/cute-ping.mp3");
+      audio.play();
+    }
+  }, [timer]); // Effect depends on the timer state
+
+  const handleDrinkWater = () => {
+    setTimer(30 * 60); // Reset timer to 30 minutes
+    setAchievements(achievements + 1); // Increment achievements
+    setStreak(streak + 1); // Increment streak
+  };
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen bg-purple-100 p-4">
+      <Head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#9b59b6" />
+      </Head>
+
+      <Card className="p-6 bg-white shadow-lg rounded-2xl text-center">
+        <CardContent>
+          <motion.div animate={{ scale: [1, 1.1, 1] }}>
+            <h1 className="text-2xl font-bold text-purple-700">Drink Water, Honey! 💜</h1>
+            <p className="text-gray-600">Stay hydrated and take care of yourself!</p>
+          </motion.div>
+
+          {/* Cute Mascot */}
+          <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 2 }}>
+            <Image src="/mascot.png" alt="Cute Water Droplet Mascot" width={100} height={100} />
+          </motion.div>
+
+          {/* Timer */}
+          <div className="text-3xl font-bold text-blue-500 my-4">
+            {Math.floor(timer / 60)}:{(timer % 60).toString().padStart(2, "0")}
+          </div>
+
+          {/* Drink Water Button */}
+          <Button onClick={handleDrinkWater} className="bg-purple-500 hover:bg-purple-600 text-white px-6 py-3 rounded-full">
+            I Drank! 💦
+          </Button>
+
+          {/* Achievements */}
+          {achievements > 0 && (
+            <p className="mt-4 text-sm text-gray-700">You may claim your rewards from the creator! 🎉</p>
+          )}
+
+          {/* Streak */}
+          {streak > 0 && (
+            <p className="mt-2 text-sm text-purple-700">🔥 Streak: {streak} days in a row!</p>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
